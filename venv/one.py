@@ -1,49 +1,77 @@
 import telebot
 
+
 TOKEN = '1242505038:AAFSTM_EH0ToKos8kUNTthbcn_-m9nj-aX4'
 
 bot = telebot.TeleBot(TOKEN)
 
-tasks_1 = []
-tasks_2=[]
-
-@bot.message_handler(commands=['start'])
+@bot.message_handler(commands=['start']) #rabotaet
 def start_handler(message):
-    bot.send_message(message.chat.id, "Привет, пользователь!")
+    bot.send_message(message.chat.id, "Привет, пользователь! Чтобы увидеть список всех команд напиши /help")
 
 
-@bot.message_handler(commands=['help'])
+@bot.message_handler(commands=['help']) #rabotaet
 def help_handler(message):
-    bot.send_message(message.from_user.id, "Могу ответить на /start, /help, /new_item, /delete, /all")
+    bot.send_message(message.from_user.id, "/help - вывод набора всех команд \n /new_item - добавление нового задания \n /delete (?) - удаление задания под индексом (?) \n /all - вывод списка всех заданий")
 
-@bot.message_handler(commands=['new_item '])
+@bot.message_handler(commands=['new_item'])
 def task_handler(message):
-    task = message.text
-    tasks_1 = tasks_1.append(task)
-    task_id = tasks_1.index(task)
-    if len(tasks_1)>len(tasks_2):
-        bot.reply_to_message(message.from_user.id, "Задание " + task + " было добавлено. Его id - " + task_id)
-        tasks_2=tasks_1
-    elif len(tasks_1)==len(tasks_2):
-        bot.reply_to_message(message.from_user.id, "Ничего не было добавлено")
+    sent = bot.send_message(message.chat.id, 'Какое новое задание?') #rabotaet
+    bot.register_next_step_handler(sent, hello)
+
+def hello(message):
+    text = message.text
+    open('tasks_1.txt', 'a').write(text+' \n')
+    read_object = open('tasks_1.txt', 'r')
+    write_object = open('tasks_2.txt', 'a')
+    for idx, line in enumerate(read_object, start=1):
+        write_object.write('{} {}'.format(str(idx)+'.', line))
+    bot.send_message(message.chat.id, 'Задание добавлено. Его номер -'+str(idx)+'.')
+    read_object.close()
+
 
 
 @bot.message_handler(commands=['delete'])
 def remover_handler(message):
-    task_number=message.get('text')
-    task_number=int(task_number)
-    for i in range(0, len(tasks)):
-        if tasks[task_number]==tasks[i]:
-            tasks.remove(tasks[i])
+    sent = bot.send_message(message.chat.id, 'Напишите номер с точкой (между номером и точкой не должно быть пробела) того задания, которое хотите удалить')
+    bot.register_next_step_handler(sent, hi)
+
+def hi(message):
+    str_0 = message.text
+    with open("tasks_2.txt", "r") as f:
+        lines = f.readlines()
+    with open("tasks_2.txt", "w") as f:
+        for line in lines:
+            if line[0:len(str_0)] != str_0:
+                f.write(line)
+    bot.send_message(message.chat.id, 'Задание удалено')
+    f.close()
 
 @bot.message_handler(commands=['all'])     #normal'no rabotaet
 def look_trough_list_handler(message):
-    if len(tasks)==0:
-        bot.send_message(message.from_user.id, 'Заданий нет')
-    else:
-        bot.send_message(message.from_user.id, 'Вот список ваших дел - \n', tasks)
+    f = open('tasks_2.txt')
+    bot.send_message(message.from_user.id, 'Вот список ваших дел - \n' + f.read())
 
 
 
 bot.polling()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
