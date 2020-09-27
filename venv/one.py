@@ -58,13 +58,9 @@ def hi(message):
 def look_trough_list_handler(message):
     f = open('tasks.txt')
     if f !='':
-        
         bot.send_message(message.chat.id, 'Вот список ваших дел - \n' +str(f.read()))
-
     else:
         bot.send_message(message.chat.id, 'Заданий нет')
-
-
 
 bot.polling()
 
