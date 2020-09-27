@@ -5,28 +5,33 @@ TOKEN = '1242505038:AAFSTM_EH0ToKos8kUNTthbcn_-m9nj-aX4'
 
 bot = telebot.TeleBot(TOKEN)
 
-@bot.message_handler(commands=['start']) #rabotaet
+
+
+@bot.message_handler(commands=['start'])
 def start_handler(message):
     bot.send_message(message.chat.id, "Привет, пользователь! Чтобы увидеть список всех команд напиши /help")
 
 
-@bot.message_handler(commands=['help']) #rabotaet
+@bot.message_handler(commands=['help'])
 def help_handler(message):
     bot.send_message(message.from_user.id, "/help - вывод набора всех команд \n /new_item - добавление нового задания \n /delete (?) - удаление задания под индексом (?) \n /all - вывод списка всех заданий")
 
 @bot.message_handler(commands=['new_item'])
 def task_handler(message):
-    sent = bot.send_message(message.chat.id, 'Какое новое задание?') #rabotaet
+    sent = bot.send_message(message.chat.id, 'Какое новое задание?')
     bot.register_next_step_handler(sent, hello)
 
 def hello(message):
-    text = message.text
-    open('tasks_1.txt', 'a').write(text+' \n')
-    read_object = open('tasks_1.txt', 'r')
-    write_object = open('tasks_2.txt', 'a')
+    text = str(message.text)
+    open('tasks.txt', 'a').write(text+' \n')
+
+    read_object = open('tasks.txt', 'r+')
+    write_object = open('tasks.txt', 'a')
     for idx, line in enumerate(read_object, start=1):
-        write_object.write('{} {}'.format(str(idx)+'.', line))
-    bot.send_message(message.chat.id, 'Задание добавлено. Его номер -'+str(idx)+'.')
+        write_object.write('{} {}'.format(str(idx) + '.', line))
+        read_object.truncate(0)
+
+    bot.send_message(message.chat.id, 'Задание добавлено. Его номер -' + str(idx) + '.')
     read_object.close()
 
 
@@ -38,39 +43,28 @@ def remover_handler(message):
 
 def hi(message):
     str_0 = message.text
-    with open("tasks_2.txt", "r") as f:
+
+    with open("tasks.txt", "r") as f:
         lines = f.readlines()
-    with open("tasks_2.txt", "w") as f:
+    with open("tasks.txt", "w") as f:
         for line in lines:
             if line[0:len(str_0)] != str_0:
                 f.write(line)
+
     bot.send_message(message.chat.id, 'Задание удалено')
     f.close()
 
-@bot.message_handler(commands=['all'])     #normal'no rabotaet
+@bot.message_handler(commands=['all'])
 def look_trough_list_handler(message):
-    f = open('tasks_2.txt')
-    bot.send_message(message.from_user.id, 'Вот список ваших дел - \n' + f.read())
+    with open('tasks.txt', 'r+') as f:
+        if f.read() !='':
+            bot.send_message(message.from_user.id, 'Вот список ваших дел - '+f.read())
+        else:
+            bot.send_message(message.from_user.id, 'Заданий нет')
 
 
 
 bot.polling()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
