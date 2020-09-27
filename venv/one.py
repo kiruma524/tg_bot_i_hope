@@ -28,7 +28,7 @@ def hello(message):
     read_object = open('tasks.txt', 'r+')
     write_object = open('tasks.txt', 'a')
     for idx, line in enumerate(read_object, start=1):
-        write_object.write('{} {}'.format(str(idx) + '.', line))
+        write_object.write('{} {}'.format(str(idx) + '.', str(line)))
         read_object.truncate(0)
 
     bot.send_message(message.chat.id, 'Задание добавлено. Его номер -' + str(idx) + '.')
@@ -48,7 +48,7 @@ def hi(message):
         lines = f.readlines()
     with open("tasks.txt", "w") as f:
         for line in lines:
-            if line[0:len(str_0)] != str_0:
+            if str_0 not in line:
                 f.write(line)
 
     bot.send_message(message.chat.id, 'Задание удалено')
@@ -56,11 +56,13 @@ def hi(message):
 
 @bot.message_handler(commands=['all'])
 def look_trough_list_handler(message):
-    with open('tasks.txt', 'r+') as f:
-        if f.read() !='':
-            bot.send_message(message.from_user.id, 'Вот список ваших дел - '+f.read())
-        else:
-            bot.send_message(message.from_user.id, 'Заданий нет')
+    f = open('tasks.txt')
+    if f !='':
+        
+        bot.send_message(message.chat.id, 'Вот список ваших дел - \n' +str(f.read()))
+
+    else:
+        bot.send_message(message.chat.id, 'Заданий нет')
 
 
 
